@@ -112,7 +112,7 @@ export default function TodoScreen() {
 
   // Current formatted date
   const todayFormatted = new Date().toLocaleDateString('en-US', {
-    weekday: 'long',
+    weekday: 'short',
     month: 'short',
     day: 'numeric',
   });
@@ -165,20 +165,35 @@ export default function TodoScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.container}
       >
-        {/* Header Section */}
-        <View style={styles.header}>
-          <View>
-            <Text style={styles.dateText}>{todayFormatted}</Text>
-            <Text style={styles.appTitle}>Todo List</Text>
+        {/* Modern Top Navbar */}
+        <View style={styles.navbar}>
+          <View style={styles.navLeft}>
+            <View style={styles.logoBadge}>
+              <Text style={styles.logoIcon}>✓</Text>
+            </View>
+            <View>
+              <View style={styles.titleRow}>
+                <Text style={styles.navTitle}>Todo List</Text>
+                <View style={styles.tagBadge}>
+                  <Text style={styles.tagText}>LAB 1</Text>
+                </View>
+              </View>
+              <Text style={styles.navSubtitle}>{todayFormatted}</Text>
+            </View>
           </View>
-          {/* Objective 8: Prominently displaying remaining tasks */}
-          <View style={styles.remainingBadge}>
-            <Text style={styles.remainingBadgeNumber}>{remainingCount}</Text>
-            <Text style={styles.remainingBadgeLabel}>Remaining</Text>
+
+          {/* Objective 8: Prominently displaying remaining tasks in Navbar */}
+          <View style={styles.navRight}>
+            <View style={styles.remainingPill}>
+              <View style={styles.pulseDot} />
+              <Text style={styles.remainingPillText}>
+                {remainingCount} {remainingCount === 1 ? 'task' : 'tasks'} left
+              </Text>
+            </View>
           </View>
         </View>
 
-        {/* Stats & Progress Card */}
+        {/* Stats & Progress Overview */}
         <View style={styles.statsCard}>
           <View style={styles.statsRow}>
             <View style={styles.statItem}>
@@ -207,11 +222,9 @@ export default function TodoScreen() {
           </View>
           <View style={styles.progressTextRow}>
             <Text style={styles.progressText}>{progressPercent}% completed</Text>
-            {completedCount > 0 && (
-              <TouchableOpacity onPress={handleClearCompleted} activeOpacity={0.7}>
-                <Text style={styles.clearCompletedText}>Clear completed</Text>
-              </TouchableOpacity>
-            )}
+            <Text style={styles.progressDetail}>
+              {completedCount} of {totalCount} tasks
+            </Text>
           </View>
         </View>
 
@@ -219,7 +232,7 @@ export default function TodoScreen() {
         <View style={styles.inputCard}>
           <TextInput
             style={styles.input}
-            placeholder="Add a new task..."
+            placeholder="What needs to be done?..."
             placeholderTextColor="#9CA3AF"
             value={inputText}
             onChangeText={setInputText}
@@ -233,33 +246,6 @@ export default function TodoScreen() {
           >
             <Text style={styles.addButtonText}>+ Add</Text>
           </TouchableOpacity>
-        </View>
-
-        {/* Filter Pills */}
-        <View style={styles.filterContainer}>
-          {(['all', 'active', 'completed'] as FilterType[]).map((tab) => (
-            <TouchableOpacity
-              key={tab}
-              style={[styles.filterPill, activeFilter === tab && styles.filterPillActive]}
-              onPress={() => setActiveFilter(tab)}
-              activeOpacity={0.7}
-            >
-              <Text
-                style={[
-                  styles.filterPillText,
-                  activeFilter === tab && styles.filterPillTextActive,
-                ]}
-              >
-                {tab.charAt(0).toUpperCase() + tab.slice(1)} (
-                {tab === 'all'
-                  ? totalCount
-                  : tab === 'active'
-                  ? remainingCount
-                  : completedCount}
-                )
-              </Text>
-            </TouchableOpacity>
-          ))}
         </View>
 
         {/* Objective 5: Display tasks using FlatList */}
@@ -282,11 +268,66 @@ export default function TodoScreen() {
               <Text style={styles.emptySubtitle}>
                 {activeFilter === 'all'
                   ? 'Type in the box above and tap + Add to create your first task.'
-                  : 'Switch filters or add new tasks.'}
+                  : 'Switch filters below or add new tasks.'}
               </Text>
             </View>
           }
         />
+
+        {/* Modern Bottom Dock & Footer */}
+        <View style={styles.footerWrapper}>
+          {/* Bottom Dock Navigation Tabs */}
+          <View style={styles.dockBar}>
+            <TouchableOpacity
+              style={[styles.dockTab, activeFilter === 'all' && styles.dockTabActive]}
+              onPress={() => setActiveFilter('all')}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.dockTabIcon}>📋</Text>
+              <Text style={[styles.dockTabText, activeFilter === 'all' && styles.dockTabTextActive]}>
+                All ({totalCount})
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.dockTab, activeFilter === 'active' && styles.dockTabActive]}
+              onPress={() => setActiveFilter('active')}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.dockTabIcon}>⏳</Text>
+              <Text style={[styles.dockTabText, activeFilter === 'active' && styles.dockTabTextActive]}>
+                Pending ({remainingCount})
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.dockTab, activeFilter === 'completed' && styles.dockTabActive]}
+              onPress={() => setActiveFilter('completed')}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.dockTabIcon}>✅</Text>
+              <Text style={[styles.dockTabText, activeFilter === 'completed' && styles.dockTabTextActive]}>
+                Done ({completedCount})
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Footer Bottom Bar with Branding & Clear Action */}
+          <View style={styles.footerBottomBar}>
+            <Text style={styles.footerCredit}>
+              Designed by <Text style={styles.footerAuthor}>Arafat Sarker</Text>
+            </Text>
+            {completedCount > 0 && (
+              <TouchableOpacity
+                style={styles.clearButton}
+                onPress={handleClearCompleted}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.clearButtonText}>🗑 Clear Completed</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -295,40 +336,46 @@ export default function TodoScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#F8FAFC',
   },
   container: {
     flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 10,
-    maxWidth: 600,
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    maxWidth: 620,
     width: '100%',
     alignSelf: 'center',
   },
-  header: {
+
+  /* Modern Top Navbar */
+  navbar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
-  },
-  dateText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#6B7280',
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
-  },
-  appTitle: {
-    fontSize: 30,
-    fontWeight: '800',
-    color: '#111827',
-    marginTop: 2,
-  },
-  remainingBadge: {
-    backgroundColor: '#4F46E5',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
     paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 16,
+    paddingVertical: 14,
+    marginBottom: 14,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
+  },
+  navLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  logoBadge: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: '#4F46E5',
+    justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#4F46E5',
     shadowOffset: { width: 0, height: 4 },
@@ -336,27 +383,81 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 4,
   },
-  remainingBadgeNumber: {
+  logoIcon: {
+    color: '#FFFFFF',
+    fontSize: 22,
+    fontWeight: '900',
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  navTitle: {
     fontSize: 20,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: '#0F172A',
+    letterSpacing: -0.3,
   },
-  remainingBadgeLabel: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#E0E7FF',
-    textTransform: 'uppercase',
+  tagBadge: {
+    backgroundColor: '#EEF2FF',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#C7D2FE',
   },
+  tagText: {
+    color: '#4F46E5',
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 0.5,
+  },
+  navSubtitle: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#64748B',
+    marginTop: 2,
+  },
+  navRight: {
+    alignItems: 'flex-end',
+  },
+  remainingPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#F1F5F9',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  pulseDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#10B981',
+  },
+  remainingPillText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#334155',
+  },
+
+  /* Stats Card */
   statsCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
     padding: 16,
-    marginBottom: 16,
-    shadowColor: '#000000',
+    marginBottom: 14,
+    shadowColor: '#0F172A',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.04,
     shadowRadius: 10,
     elevation: 2,
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
   },
   statsRow: {
     flexDirection: 'row',
@@ -369,23 +470,25 @@ const styles = StyleSheet.create({
   },
   statNumber: {
     fontSize: 20,
-    fontWeight: '700',
-    color: '#1F2937',
+    fontWeight: '800',
+    color: '#0F172A',
   },
   statLabel: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: '#6B7280',
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#64748B',
     marginTop: 2,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   statDivider: {
     width: 1,
     height: 28,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: '#E2E8F0',
   },
   progressBarBackground: {
     height: 8,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: '#F1F5F9',
     borderRadius: 4,
     overflow: 'hidden',
   },
@@ -402,47 +505,51 @@ const styles = StyleSheet.create({
   },
   progressText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: '700',
     color: '#059669',
   },
-  clearCompletedText: {
+  progressDetail: {
     fontSize: 12,
-    fontWeight: '600',
-    color: '#EF4444',
+    fontWeight: '500',
+    color: '#64748B',
   },
+
+  /* Input Card */
   inputCard: {
     flexDirection: 'row',
     backgroundColor: '#FFFFFF',
-    borderRadius: 16,
+    borderRadius: 18,
     padding: 6,
     paddingLeft: 16,
     alignItems: 'center',
-    marginBottom: 16,
-    shadowColor: '#000000',
+    marginBottom: 14,
+    shadowColor: '#0F172A',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.04,
     shadowRadius: 8,
     elevation: 2,
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
   },
   input: {
     flex: 1,
     fontSize: 15,
-    color: '#111827',
+    color: '#0F172A',
     paddingVertical: 10,
   },
   addButton: {
     backgroundColor: '#4F46E5',
     paddingHorizontal: 18,
     paddingVertical: 12,
-    borderRadius: 12,
+    borderRadius: 14,
     shadowColor: '#4F46E5',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
     elevation: 3,
   },
   addButtonDisabled: {
-    backgroundColor: '#9CA3AF',
+    backgroundColor: '#CBD5E1',
     shadowOpacity: 0,
     elevation: 0,
   },
@@ -451,30 +558,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
   },
-  filterContainer: {
-    flexDirection: 'row',
-    gap: 8,
-    marginBottom: 14,
-  },
-  filterPill: {
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: 20,
-    backgroundColor: '#E5E7EB',
-  },
-  filterPillActive: {
-    backgroundColor: '#1F2937',
-  },
-  filterPillText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#4B5563',
-  },
-  filterPillTextActive: {
-    color: '#FFFFFF',
-  },
+
+  /* List */
   listContent: {
-    paddingBottom: 24,
+    paddingBottom: 16,
     gap: 10,
   },
   taskCard: {
@@ -483,22 +570,25 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 14,
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 6,
     elevation: 1,
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
   },
   taskCardCompleted: {
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#F8FAFC',
+    borderColor: '#E2E8F0',
     opacity: 0.85,
   },
   checkbox: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
     borderWidth: 2,
-    borderColor: '#D1D5DB',
+    borderColor: '#CBD5E1',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -519,17 +609,17 @@ const styles = StyleSheet.create({
   taskText: {
     fontSize: 15,
     fontWeight: '500',
-    color: '#1F2937',
+    color: '#1E293B',
     lineHeight: 20,
   },
   taskTextCompleted: {
     textDecorationLine: 'line-through',
-    color: '#9CA3AF',
+    color: '#94A3B8',
   },
   taskTime: {
     fontSize: 11,
-    color: '#9CA3AF',
-    marginTop: 2,
+    color: '#94A3B8',
+    marginTop: 3,
   },
   deleteButton: {
     width: 32,
@@ -542,28 +632,105 @@ const styles = StyleSheet.create({
   },
   deleteButtonText: {
     color: '#EF4444',
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '700',
   },
   emptyContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 50,
+    paddingVertical: 45,
   },
   emptyIcon: {
-    fontSize: 48,
-    marginBottom: 12,
+    fontSize: 44,
+    marginBottom: 10,
   },
   emptyTitle: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '700',
-    color: '#374151',
-    marginBottom: 6,
+    color: '#334155',
+    marginBottom: 4,
   },
   emptySubtitle: {
-    fontSize: 14,
-    color: '#9CA3AF',
+    fontSize: 13,
+    color: '#94A3B8',
     textAlign: 'center',
     paddingHorizontal: 20,
+  },
+
+  /* Modern Bottom Dock & Footer */
+  footerWrapper: {
+    paddingTop: 8,
+    paddingBottom: Platform.OS === 'ios' ? 12 : 16,
+    backgroundColor: '#F8FAFC',
+  },
+  dockBar: {
+    flexDirection: 'row',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 6,
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
+  },
+  dockTab: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 10,
+    borderRadius: 14,
+  },
+  dockTabActive: {
+    backgroundColor: '#4F46E5',
+    shadowColor: '#4F46E5',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  dockTabIcon: {
+    fontSize: 14,
+  },
+  dockTabText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#64748B',
+  },
+  dockTabTextActive: {
+    color: '#FFFFFF',
+  },
+  footerBottomBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingTop: 10,
+  },
+  footerCredit: {
+    fontSize: 12,
+    color: '#94A3B8',
+    fontWeight: '500',
+  },
+  footerAuthor: {
+    color: '#4F46E5',
+    fontWeight: '700',
+  },
+  clearButton: {
+    backgroundColor: '#FEE2E2',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  clearButtonText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#EF4444',
   },
 });
